@@ -162,8 +162,6 @@ class MeasureRadiusTool(QgsMapTool):
                                 Qgis.DistanceUnit.Centimeters,
                                 Qgis.DistanceUnit.Millimeters]
         
-    ######UTILS TO CALCULATE DISTANCES, AREAS, ELLIPSOIDAL, CARTESIAN ETC#######
-    #########AND TRANSFORM BETWEEN CRS E.G. WHEN PROJECT CRS IS CHANGED#########
     def cartesian_length(self, length, input_units, output_units):
         if input_units == 0: # Meters
             if output_units == 0: # Meters
@@ -458,7 +456,6 @@ class MeasureRadiusTool(QgsMapTool):
             if self.centre_point_marker:
                 self.canvas.scene().removeItem(self.centre_point_marker)
                 self.centre_point_marker = None
-            ######TEMP BLOCK TO 'RESET' EVERYTHING ON LEFT CLICK
             if self.outer_marker:
                 self.canvas.scene().removeItem(self.outer_marker)
                 self.outer_point_marker = None
