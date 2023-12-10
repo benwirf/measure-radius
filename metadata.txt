@@ -1,0 +1,9 @@
+[general]
+name=Measure Radius
+description=A Measure Radius Map Tool
+about=Adds a map tool which creates a circular rubber band when measuring a radial distance
+version=1.0
+qgisMinimumVersion=3.30
+author=Ben Wirf
+email=ben.wirf@gmail.com
+repository=URL to the code repository
