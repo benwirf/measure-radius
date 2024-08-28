@@ -489,7 +489,6 @@ class MeasureRadiusTool(QgsMapTool):
             self.snap_indicator.setMatch(snap_match)
             if self.snap_indicator.match().type():
                 # cursor is snapped to a vertex/segment (based on snapping settings)
-                # this will be evident because pink square/cross will be shown
                 self.centre_point = self.snap_indicator.match().point()
             ####AUG 2024
             self.centre_point_marker.setCenter(self.centre_point)
@@ -515,7 +514,6 @@ class MeasureRadiusTool(QgsMapTool):
                 self.snap_indicator.setMatch(snap_match)
                 if self.snap_indicator.match().type():
                     # cursor is snapped to a vertex/segment (based on snapping settings)
-                    # this will be evident because pink square/cross will be shown
                     self.outer_point = self.snap_indicator.match().point()
                 ####AUG 2024
                 # Create radius (line) and buffer (polygon) rubber bands
@@ -562,7 +560,6 @@ class MeasureRadiusTool(QgsMapTool):
         self.snap_indicator.setMatch(snap_match)
         if self.snap_indicator.match().type():
             # cursor is snapped to a vertex/segment (based on snapping settings)
-            # this will be evident because pink square/cross will be shown
             cursor_point = self.snap_indicator.match().point()
         ####AUG 2024
         if self.drawing:
