@@ -19,7 +19,7 @@ from qgis.core import (Qgis, QgsProject, QgsDistanceArea, QgsCoordinateTransform
                         QgsGeometry, QgsPoint)
 
 from qgis.gui import (QgsMapTool, QgsRubberBand, QgsVertexMarker,
-                        QgsGeometryRubberBand)
+                        QgsGeometryRubberBand, QgsSnapIndicator)
 
 import os
 
@@ -162,6 +162,13 @@ class MeasureRadiusTool(QgsMapTool):
                                 Qgis.DistanceUnit.Centimeters,
                                 Qgis.DistanceUnit.Millimeters]
         
+        #####################August 2024###########################
+        self.snap_indicator = QgsSnapIndicator(self.canvas)
+        self.snap_utils = self.canvas.snappingUtils()
+        #####################August 2024###########################
+        
+    ######UTILS TO CALCULATE DISTANCES, AREAS, ELLIPSOIDAL, CARTESIAN ETC#######
+    #########AND TRANSFORM BETWEEN CRS E.G. WHEN PROJECT CRS IS CHANGED#########
     def cartesian_length(self, length, input_units, output_units):
         if input_units == 0: # Meters
             if output_units == 0: # Meters
@@ -456,6 +463,7 @@ class MeasureRadiusTool(QgsMapTool):
             if self.centre_point_marker:
                 self.canvas.scene().removeItem(self.centre_point_marker)
                 self.centre_point_marker = None
+            ######TEMP BLOCK TO 'RESET' EVERYTHING ON LEFT CLICK
             if self.outer_marker:
                 self.canvas.scene().removeItem(self.outer_marker)
                 self.outer_point_marker = None
@@ -476,6 +484,14 @@ class MeasureRadiusTool(QgsMapTool):
             self.centre_point_marker.setPenWidth(1)
             self.centre_point_marker.setFillColor(QColor(222,155,67,100))
             self.centre_point = event.mapPoint()
+            ####AUG 2024
+            snap_match = self.snap_utils.snapToMap(event.mapPoint())
+            self.snap_indicator.setMatch(snap_match)
+            if self.snap_indicator.match().type():
+                # cursor is snapped to a vertex/segment (based on snapping settings)
+                # this will be evident because pink square/cross will be shown
+                self.centre_point = self.snap_indicator.match().point()
+            ####AUG 2024
             self.centre_point_marker.setCenter(self.centre_point)
             self.centre_point_marker.show()
             if self.project.crs().isGeographic():
@@ -494,7 +510,14 @@ class MeasureRadiusTool(QgsMapTool):
                 self.circle_rb = None
                 
                 self.outer_point = event.mapPoint()
-                                
+                ####AUG 2024
+                snap_match = self.snap_utils.snapToMap(event.mapPoint())
+                self.snap_indicator.setMatch(snap_match)
+                if self.snap_indicator.match().type():
+                    # cursor is snapped to a vertex/segment (based on snapping settings)
+                    # this will be evident because pink square/cross will be shown
+                    self.outer_point = self.snap_indicator.match().point()
+                ####AUG 2024
                 # Create radius (line) and buffer (polygon) rubber bands
                 self.radius_rb = QgsRubberBand(self.canvas, Qgis.GeometryType.Line)
                 self.radius_rb.setColor(QColor(222,155,67,150))
@@ -534,6 +557,14 @@ class MeasureRadiusTool(QgsMapTool):
         
     def canvasMoveEvent(self, event):
         cursor_point = event.mapPoint()
+        ####AUG 2024
+        snap_match = self.snap_utils.snapToMap(cursor_point)
+        self.snap_indicator.setMatch(snap_match)
+        if self.snap_indicator.match().type():
+            # cursor is snapped to a vertex/segment (based on snapping settings)
+            # this will be evident because pink square/cross will be shown
+            cursor_point = self.snap_indicator.match().point()
+        ####AUG 2024
         if self.drawing:
             self.outer_point = cursor_point
         if self.line_rb:
