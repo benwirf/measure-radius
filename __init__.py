@@ -463,10 +463,12 @@ class MeasureRadiusTool(QgsMapTool):
             if self.centre_point_marker:
                 self.canvas.scene().removeItem(self.centre_point_marker)
                 self.centre_point_marker = None
+                self.centre_point = None # NOV_2024
             ######TEMP BLOCK TO 'RESET' EVERYTHING ON LEFT CLICK
             if self.outer_marker:
                 self.canvas.scene().removeItem(self.outer_marker)
-                self.outer_point_marker = None
+                self.outer_marker = None
+                self.outer_point = None # NOV_2024
             if self.radius_rb:
                 self.canvas.scene().removeItem(self.radius_rb)
                 self.radius_rb = None
@@ -596,12 +598,14 @@ class MeasureRadiusTool(QgsMapTool):
         if self.centre_point_marker:
             self.canvas.scene().removeItem(self.centre_point_marker)
             self.centre_point_marker = None
+            self.centre_point = None # NOV_2024
         if self.line_rb:
             self.canvas.scene().removeItem(self.line_rb)
             self.line_rb = None
         if self.outer_marker:
             self.canvas.scene().removeItem(self.outer_marker)
-            self.outer_point_marker = None
+            self.outer_marker = None
+            self.outer_point = None # NOV_2024
         if self.radius_rb:
             self.canvas.scene().removeItem(self.radius_rb)
             self.radius_rb = None
