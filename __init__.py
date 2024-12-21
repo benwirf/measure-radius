@@ -16,7 +16,7 @@ from qgis.PyQt.QtWidgets import (QAction, QDialog, QLabel, QLineEdit, QComboBox,
 from qgis.PyQt.QtGui import QFont, QColor, QIcon
 
 from qgis.core import (Qgis, QgsProject, QgsDistanceArea, QgsCoordinateTransform,
-                        QgsGeometry, QgsPoint)
+                        QgsGeometry, QgsPoint, QgsCircle)
 
 from qgis.gui import (QgsMapTool, QgsRubberBand, QgsVertexMarker,
                         QgsGeometryRubberBand, QgsSnapIndicator)
@@ -552,7 +552,17 @@ class MeasureRadiusTool(QgsMapTool):
         return radius_geom
 
     def create_buffer_geom(self):
-        buffer_geom = QgsGeometry.fromPointXY(self.centre_point).buffer(self.create_radius_geom().length(), 25)
+        #buffer_geom = QgsGeometry.fromPointXY(self.centre_point).buffer(self.create_radius_geom().length(), 250)
+        ###
+        tmp_ctr_pt = QgsPoint(self.centre_point)
+        tmp_out_pt = QgsPoint(self.outer_point)
+        buffer_dist = self.create_radius_geom().length()
+        az = tmp_ctr_pt.azimuth(tmp_out_pt)
+        circ = QgsCircle(tmp_ctr_pt, buffer_dist, az)
+        poly = circ.toPolygon(360)
+        poly_geom = QgsGeometry(poly)
+        buffer_geom = poly_geom.densifyByCount(10)
+        ###
         return buffer_geom
         
     def canvasMoveEvent(self, event):
@@ -564,13 +574,14 @@ class MeasureRadiusTool(QgsMapTool):
             # cursor is snapped to a vertex/segment (based on snapping settings)
             cursor_point = self.snap_indicator.match().point()
         ####AUG 2024
-        if self.drawing:
-            self.outer_point = cursor_point
+        if not self.drawing:
+            return
+        self.outer_point = cursor_point
         if self.line_rb:
             self.line_rb.reset()
             self.line_rb.setColor(QColor(222,155,67,150))
             self.line_rb.setWidth(3)
-            line_geom = QgsGeometry.fromPolyline([QgsPoint(self.centre_point), QgsPoint(cursor_point)])
+            line_geom = self.create_radius_geom()
             self.line_rb.setToGeometry(line_geom)
             self.line_rb.show()
             
@@ -579,7 +590,7 @@ class MeasureRadiusTool(QgsMapTool):
             self.circle_rb.setStrokeColor(QColor(25,25,25))
             self.circle_rb.setWidth(2)
             self.circle_rb.setFillColor(QColor(125,125,125,35))
-            circle_geom = QgsGeometry.fromPointXY(self.centre_point).buffer(line_geom.length(), 25)
+            circle_geom = self.create_buffer_geom()
             self.circle_rb.setToGeometry(circle_geom)
             self.circle_rb.show()
             
