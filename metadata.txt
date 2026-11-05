@@ -2,6 +2,8 @@
 name=Measure Radius
 description=A Measure Radius Map Tool
 about=Adds a map tool which creates a circular rubber band when measuring a radial distance
+license=GNU General Public License v3 (GPLv3)
+icon=measure-radius-icon.png
 version=1.2
 qgisMinimumVersion=3.30
 qgisMaximumVersion=4.99
