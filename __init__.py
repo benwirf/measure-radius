@@ -10,10 +10,10 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import (QAction, QDialog, QLabel, QLineEdit, QComboBox,
+from qgis.PyQt.QtWidgets import (QDialog, QLabel, QLineEdit, QComboBox,
                             QRadioButton, QHBoxLayout, QVBoxLayout, QPushButton)
                             
-from qgis.PyQt.QtGui import QFont, QColor, QIcon
+from qgis.PyQt.QtGui import QAction, QFont, QColor, QIcon
 
 from qgis.core import (Qgis, QgsProject, QgsDistanceArea, QgsCoordinateTransform,
                         QgsGeometry, QgsPoint, QgsCircle)
@@ -31,7 +31,11 @@ class MeasureRadius:
     def __init__(self, iface):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
-        self.map_tool = MeasureRadiusTool(self.canvas)
+        
+        self.map_tool = MeasureRadiusTool(
+            self.canvas,
+            self.iface.mainWindow()
+        )
 
     def initGui(self):
         self.tool_bar = self.iface.attributesToolBar()
@@ -49,12 +53,16 @@ class MeasureRadius:
 
     def run(self):
         self.canvas.setMapTool(self.map_tool)
+
         self.map_tool.dlg.show()
+        self.map_tool.dlg.raise_()
+        self.map_tool.dlg.activateWindow()
 
 class MeasureRadiusDialog(QDialog):
     
-    def __init__(self):
-        super(MeasureRadiusDialog, self).__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
         self.setGeometry( 100, 100, 550, 200)
         self.setWindowTitle('Measure')
         
@@ -111,13 +119,13 @@ class MeasureRadiusDialog(QDialog):
         self.x_edit.setFont(self.edit_font)
         self.y_edit.setFont(self.edit_font)
         self.radius_edit.setFont(self.edit_font)
-        self.radius_edit.setAlignment(Qt.AlignRight)
+        self.radius_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
         
         self.close_button.clicked.connect(lambda: self.close())
 
 class MeasureRadiusTool(QgsMapTool):
     
-    def __init__(self, canvas):
+    def __init__(self, canvas, parent=None):
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         
@@ -139,7 +147,7 @@ class MeasureRadiusTool(QgsMapTool):
         
         self.radius_length = 0.0
         
-        self.dlg = MeasureRadiusDialog()
+        self.dlg = MeasureRadiusDialog(parent)
         # self.dlg.show()
         self.reset_dlg_line_edits()
         
@@ -449,10 +457,13 @@ class MeasureRadiusTool(QgsMapTool):
         self.dlg.radius_edit.setText(str(round(self.radius_length, 5)))
         
     def canvasPressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.drawing = True
             if not self.dlg.isVisible():
                 self.dlg.show()
+            
+            self.dlg.raise_()
+            self.dlg.activateWindow()
             self.reset_dlg_line_edits()
             if self.line_rb:
                 self.line_rb.reset()
@@ -502,7 +513,7 @@ class MeasureRadiusTool(QgsMapTool):
             self.dlg.x_edit.setText(str(round(self.centre_point.x(), rounding_val)))
             self.dlg.y_edit.setText(str(round(self.centre_point.y(), rounding_val)))
                         
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton:
             self.drawing = False
             if self.line_rb and self.circle_rb and self.centre_point_marker:
                 self.canvas.scene().removeItem(self.line_rb)
