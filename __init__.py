@@ -10,10 +10,10 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import (QAction, QDialog, QLabel, QLineEdit, QComboBox,
+from qgis.PyQt.QtWidgets import (QDialog, QLabel, QLineEdit, QComboBox,
                             QRadioButton, QHBoxLayout, QVBoxLayout, QPushButton)
                             
-from qgis.PyQt.QtGui import QFont, QColor, QIcon
+from qgis.PyQt.QtGui import QAction, QFont, QColor, QIcon
 
 from qgis.core import (Qgis, QgsProject, QgsDistanceArea, QgsCoordinateTransform,
                         QgsGeometry, QgsPoint, QgsCircle)
@@ -111,7 +111,7 @@ class MeasureRadiusDialog(QDialog):
         self.x_edit.setFont(self.edit_font)
         self.y_edit.setFont(self.edit_font)
         self.radius_edit.setFont(self.edit_font)
-        self.radius_edit.setAlignment(Qt.AlignRight)
+        self.radius_edit.setAlignment(Qt.AlignmentFlag.AlignRight)
         
         self.close_button.clicked.connect(lambda: self.close())
 
@@ -449,7 +449,7 @@ class MeasureRadiusTool(QgsMapTool):
         self.dlg.radius_edit.setText(str(round(self.radius_length, 5)))
         
     def canvasPressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.drawing = True
             if not self.dlg.isVisible():
                 self.dlg.show()
@@ -502,7 +502,7 @@ class MeasureRadiusTool(QgsMapTool):
             self.dlg.x_edit.setText(str(round(self.centre_point.x(), rounding_val)))
             self.dlg.y_edit.setText(str(round(self.centre_point.y(), rounding_val)))
                         
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton:
             self.drawing = False
             if self.line_rb and self.circle_rb and self.centre_point_marker:
                 self.canvas.scene().removeItem(self.line_rb)
