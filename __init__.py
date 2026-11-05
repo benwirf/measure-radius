@@ -31,7 +31,11 @@ class MeasureRadius:
     def __init__(self, iface):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
-        self.map_tool = MeasureRadiusTool(self.canvas)
+        
+        self.map_tool = MeasureRadiusTool(
+            self.canvas,
+            self.iface.mainWindow()
+        )
 
     def initGui(self):
         self.tool_bar = self.iface.attributesToolBar()
@@ -49,12 +53,16 @@ class MeasureRadius:
 
     def run(self):
         self.canvas.setMapTool(self.map_tool)
+
         self.map_tool.dlg.show()
+        self.map_tool.dlg.raise_()
+        self.map_tool.dlg.activateWindow()
 
 class MeasureRadiusDialog(QDialog):
     
-    def __init__(self):
-        super(MeasureRadiusDialog, self).__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
         self.setGeometry( 100, 100, 550, 200)
         self.setWindowTitle('Measure')
         
@@ -117,7 +125,7 @@ class MeasureRadiusDialog(QDialog):
 
 class MeasureRadiusTool(QgsMapTool):
     
-    def __init__(self, canvas):
+    def __init__(self, canvas, parent=None):
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         
@@ -139,7 +147,7 @@ class MeasureRadiusTool(QgsMapTool):
         
         self.radius_length = 0.0
         
-        self.dlg = MeasureRadiusDialog()
+        self.dlg = MeasureRadiusDialog(parent)
         # self.dlg.show()
         self.reset_dlg_line_edits()
         
@@ -453,6 +461,9 @@ class MeasureRadiusTool(QgsMapTool):
             self.drawing = True
             if not self.dlg.isVisible():
                 self.dlg.show()
+            
+            self.dlg.raise_()
+            self.dlg.activateWindow()
             self.reset_dlg_line_edits()
             if self.line_rb:
                 self.line_rb.reset()
